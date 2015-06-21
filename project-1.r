@@ -69,3 +69,6 @@ sampleVariance
 
 # Analysis 3: Show that the distribution is approximately normal.
 # Referring to the plotted histgram we observe that both sample and theoretical distributions are approximately normal
+
+# Appendix
+R-Source code for this project: https://github.com/onlinebaba/statistical-inference/blob/master/project-1.r
