@@ -1,0 +1,163 @@
+---
+output: 
+  html_document: 
+    fig_caption: yes
+    theme: readable
+---
+```{r echo=FALSE}
+library("knitr")
+library("plyr")
+library("stringr")
+library("ggplot2")
+require("ggplot2")
+opts_chunk$set(echo = TRUE)
+opts_chunk$set(cache = TRUE)
+opts_chunk$set(warnings = FALSE)
+```
+---
+title: "Statistical Inference Course Project - 1"
+author: "Ramesh L. Nori"
+date: "June 14, 2015"
+output: html_document
+theme: cerulean
+---
+
+## Overview
+
+This is an R Markdown document for the statistical inference class. I will use simulation to explore inference and do some simple inferential data analysis. Then, I will be investigating the exponential distribution in R and compare it with the Central Limit Theorem.
+
+My project consists of two parts:
+
+1. A simulation exercise, where I will be generating an exponential distribution at a rate of lambda == 0.2 where lambda is the rate parameter. We will do thousand such simulations.
+
+2. Perform basic inferential data analysis from the simulated data.
+
+### Simulation Exercise
+Step 1: Generate an exponential distribution for 40 exponentials with a rate of 'lambda' = 0.2 (we assumed lambda == 0.2). 
+
+```{r, tidy=TRUE}
+# Ensure that the random numbers are always the same by setting the seed
+set.seed(3890) 
+numberOfSimulations <- 1000
+numberOfExponentials <- 40
+lambda <- 0.2
+```
+
+Using the above values, generate 1000 sets of simulations and store them in a dataframe.
+
+```{r, tidy=TRUE}
+simulationSetDF <- data.frame(mean=(numberOfSimulations))
+for(simulationIndex in 1:numberOfSimulations){
+  thisSimulationSet <- rexp(numberOfExponentials, lambda)
+  simulationSetDF[simulationIndex, 1]<-mean(thisSimulationSet)
+}
+# Sample contents
+head(simulationSetDF)
+```
+
+
+### Inferential Data Analysis
+I will be investigating the distribution of averages of 40 exponentials and in the process with explain and illustrate the following:
+
+#### Analysis 1: Derive the sample mean and compare it to the theoretical mean of the distribution.
+
+##### Sample Mean
+Sample Mean is the value obtained by dividing the sum of a set of quantities by the number of quantities in the set. Also called average, Sample Mean is an unbiased estimator for the population mean.
+
+```{r}
+sampleMean <- mean(simulationSetDF$mean)
+```
+```{r echo=FALSE}
+sampleMean
+```
+
+##### Theoretical Mean
+Theoretical Mean is the mean of the exponential distribution and is calculated as 1/lambda.
+```{r}
+theoreticalMean <- 1/lambda
+```
+```{r echo=FALSE}
+theoreticalMean
+```
+
+We now plot both sample and theoretical means on the histogram below:
+
+```{r}
+# plot histogram
+hist(simulationSetDF$mean, probability = TRUE, main = "Distribution of Simulated and Theoretical Means", xlab = "Mean of 40 Exponentials")
+
+# plot the density curve
+lines(density(simulationSetDF$mean), col="red", lwd=5)
+
+# plot theoretical mean
+abline(v=theoreticalMean, col="yellow", lwd=5)
+
+# capture first 100 means between the range of simulationSet 
+sequenceOfMeans <- seq(min(simulationSetDF$mean), max(simulationSetDF$mean), length=100)
+
+# capture the density
+densities <- dnorm(sequenceOfMeans, mean=theoreticalMean, sd=theoreticalMean/sqrt(numberOfExponentials))
+
+# plot theoretical density curve
+lines(sequenceOfMeans,densities, col="blue", lwd=5)
+
+# add legend
+legend('topright',c('Simulated Density Curve','Theoretical Density Curve','Theoretical Mean'),cex=0.8,col=c('red','blue','yellow'),lty=1,lwd=5)
+```
+
+
+##### Inference
+From the above histogram, we can clearly infer that the sample mean value is very close to theoretical mean.
+
+#### Analysis 2: How variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
+
+Calculate Theoretical Variance
+```{r}
+# theoretical variance
+theoreticalVariance <- ((1/lambda)^2) / numberOfExponentials
+```
+```{r echo=FALSE}
+theoreticalVariance
+```
+
+Calculate Sample Variance
+```{r}
+# sample variance
+sampleVariance <- var(simulationSetDF$mean)
+```
+```{r echo=FALSE}
+sampleVariance
+```
+
+##### Inference
+We observe that the sample variance and theoretical variances are very close.
+
+#### Analysis 3: Show that the distribution is approximately normal.
+```{r echo=FALSE}
+# plot histogram
+hist(simulationSetDF$mean, probability = TRUE, main = "Distribution of Simulated and Theoretical Means", xlab = "Mean of 40 Exponentials")
+
+# plot the density curve
+lines(density(simulationSetDF$mean), col="red", lwd=5)
+
+# plot theoretical mean
+abline(v=theoreticalMean, col="yellow", lwd=5)
+
+# capture first 100 means between the range of simulationSet 
+sequenceOfMeans <- seq(min(simulationSetDF$mean), max(simulationSetDF$mean), length=100)
+
+# capture the density
+densities <- dnorm(sequenceOfMeans, mean=theoreticalMean, sd=theoreticalMean/sqrt(numberOfExponentials))
+
+# plot theoretical density curve
+lines(sequenceOfMeans,densities, col="blue", lwd=5)
+
+# add legend
+legend('topright',c('Simulated Density Curve','Theoretical Density Curve','Theoretical Mean'),cex=0.8,col=c('red','blue','yellow'),lty=1,lwd=5)
+
+```
+
+##### Inference
+From the above plot, we observe that both sample and theoretical distributions are approximately normal
+
+
